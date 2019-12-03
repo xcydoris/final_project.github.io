@@ -30,3 +30,12 @@ Originally, we had two datasets, one shows HIV/AIDS diagnoses by Neighborhood, s
 To explore the trend of HIV/AIDS in NYC, We first compared the HIV diagnoses rates and AIDS diagnoses rates in each borough and the testing locations in each borough. Then we wanted to see the relationship between the number of HIV/AIDS on testing locations that provided free or low cost testing and the diagnosis rates, but we did not have sufficient data to uniformly compare between the boroughs or over different years. So, this test will not be shown in the analysis section. Next, we created an interactive graph of the HIV/AIDS diagnoses rates in each borough from 2010-2013. 
 
 
+## Analysis
+
+### Is there a relationship between the rates of diagnoses of HIV and the number of HIV testing locations, by borough?
+
+In order to better understand the trend of HIV/AIDS diagnoses, we thought it would be interesting to see the relationship between its diagnoses rates in each borough and the number of testing locations. So, we created variables shows the HIV diagnoses number per 100,000 people and AIDS diagnoses number per 100,000 people in each borough, and the number of testing locations in each borough. Below are the plots showing the relationships.
+
+<img src="images/number_of_testing_locations.jpg" style="width:100%">
+
+
