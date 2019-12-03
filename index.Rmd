@@ -6,7 +6,22 @@ output:
     toc_float: true
     theme: cerulean
 ---
+Xiaoyue Ma (xm2229) / Chuyue Xiang (cx2227)/ Harsha Senapathi (svs2130)
 
 ![](https://images.everydayhealth.com/images/stds/hiv/aids/cs-hiv-facts-about-hiv-aids-know-1440x810.jpg?sfvrsn=a288f66e_0)
+
+## Background
+Acquired immunodeficiency syndrome (AIDS) is a chronic, potentially life-threatening condition caused by the human immunodeficiency virus (HIV). There are about 200,000 cases per year in the U.S. An HIV infection can progress to AIDS, but the right treatment and certain precautions can prevent this from happening. HIV testing is an effective way to diagnose early and prevent progression to AIDS, and there are certain locations that provide HIV testing. In this project, we narrow our focus in the NYC, and we want to see whether there is a relationship or correlation between the number of diagnoses of HIV and the number of HIV testing locations within NYC.
+
+
+## Data Sources
+There are two data sets that we are using in this project: the HIV testing locations dataset and the HIV/AIDS Diagnoses by Neighborhood, Sex, and Race/Ethnicity dataset. Both datasets are available on NYC Open Data. 
+
+The HIV testing locations dataset contains location and facility information for places in New York City that provide HIV testing.
+
+The HIV/AIDS Diagnoses by Neighborhood, Sex, and Race/Ethnicity dataset includes data on new diagnoses of HIV and AIDS in NYC for the calendar years 2010 through 2013.
+
+https://www.baruch.cuny.edu/nycdata/population-geography/neighborhoods.htm
+
 
 
