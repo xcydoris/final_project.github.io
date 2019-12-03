@@ -14,13 +14,13 @@ Xiaoyue Ma (xm2229) / Chuyue Xiang (cx2227)/ Harsha Senapathi (svs2130)
 Acquired immunodeficiency syndrome (AIDS) is a chronic, potentially life-threatening condition caused by the human immunodeficiency virus (HIV). There are about 200,000 cases per year in the U.S. An HIV infection can progress to AIDS, but the right treatment and certain precautions can prevent this from happening. HIV testing is an effective way to diagnose early and prevent progression to AIDS, and there are certain locations that provide HIV testing. In this project, we narrowed our focus in NYC, and we wanted to see whether there were influential factors that would impact the HIV/AIDS diagnoses rates in NYC.
 
 ## Data Sources
-There are two datasets that we are using in this project: the HIV testing locations dataset and the HIV/AIDS Diagnoses by Neighborhood, Sex, and Race/Ethnicity dataset. Both datasets are available on NYC Open Data. 
+There are three datasets that we are using in this project: the HIV testing locations dataset and the HIV/AIDS Diagnoses by Neighborhood, Sex, and Race/Ethnicity dataset, and New York Neighborhoods by boroughs.The first two datasets are available on NYC Open Data. 
 
-The HIV testing locations dataset contains location and facility information for places in New York City that provide HIV testing.
+The HIV testing locations dataset contains location and facility information for places in New York City that provide HIV testing. You can access to this data [here](https://data.cityofnewyork.us/Health/HIV-Testing-Locations/72ss-25qh).
 
-The HIV/AIDS Diagnoses by Neighborhood, Sex, and Race/Ethnicity dataset includes data on new diagnoses of HIV and AIDS in NYC for the calendar years 2010 through 2013.
+The HIV/AIDS Diagnoses by Neighborhood, Sex, and Race/Ethnicity dataset includes data on new diagnoses of HIV and AIDS in NYC for the calendar years 2010 through 2013. You can access to this data [here](https://data.cityofnewyork.us/Health/HIV-AIDS-Diagnoses-by-Neighborhood-Sex-and-Race-Et/ykvb-493p).
 
-https://www.baruch.cuny.edu/nycdata/population-geography/neighborhoods.htm
+New York Neighborhoods by boroughs. You can access this data [here](https://www.baruch.cuny.edu/nycdata/population-geography/neighborhoods.htm).
 
 
 
