@@ -263,6 +263,12 @@ $(document).ready(function () {
 }
 }
 
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
 
 .toc-content {
   padding-left: 30px;
@@ -345,7 +351,7 @@ div.tocify {
   <a href="index.html">Analysis</a>
 </li>
 <li>
-  <a href="problem2.html">Interactive Graphics</a>
+  <a href="shiny.html">Interactive Graphics</a>
 </li>
 <li class="dropdown-header">Screencast</li>
       </ul>

@@ -1,0 +1,60 @@
+---
+title: "Visualization"
+author: "Harsha Senapathi"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(viridis)
+library(p8105.datasets)
+library(plotly)
+```
+
+
+
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+borough = borough_final %>% distinct(borough) %>% pull()
+
+# selectInput widget
+selectInput(
+  "borough_choice", 
+  label = h3("Select borough"),
+  choices = boros, selected = "Manhattan")
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+
+```
+
+### Chart C
+
+```{r}
+
+```
+  

@@ -6,6 +6,6 @@ navbar:
     - text: "Analysis"
       href: index.html
     - text: "Interactive Graphics"
-      href: problem2.html
+      href: shiny.html
     - text: "Screencast"  
       href: 
