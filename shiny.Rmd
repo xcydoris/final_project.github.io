@@ -17,12 +17,21 @@ library(p8105.datasets)
 library(plotly)
 ```
 
+```{r}
+borough = borough_final %>% distinct(borough) %>% pull()
+```
 
 Column {.sidebar}
 -----------------------------------------------------------------------
 
 ```{r}
 
+
+# selectInput widget
+selectInput(
+  "borough_choice", 
+  label = h3("Select borough"),
+  choices = boros, selected = "Manhattan")
 ```
 
 Column {data-width=650}
