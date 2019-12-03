@@ -4,7 +4,7 @@ navbar:
   title: "Home"
   left:
     - text: "Analysis"
-      href: about.html
+      href: index.html
     - text: "Interactive Graphics"
       href: problem2.html
     - text: "Screencast"  
