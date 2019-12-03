@@ -1,0 +1,316 @@
+---
+title: "Data_cleaning"
+author: "Xiaoyue Ma"
+date: "11/22/2019"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(ggplot2)
+library(viridis)
+
+# Directories
+final = read_csv("./data/HIV_AIDS_Diagnoses_by_Neighborhood__Sex__and_Race_Ethnicity.csv")
+
+final_location = read_csv("./data/HIV_Testing_Locations.csv")
+```
+
+
+### data set cleaning
+
+import Manhattan neighborhood to borough data find on the [website](https://www.baruch.cuny.edu/nycdata/population-geography/neighborhoods.htm)
+
+Add the borough info to `final` dataset
+
+```{r}
+## dropping last column because it is empty
+n_to_b = read_csv("./data/Manhattan_Neighborhood_to_Borough.csv")[,-6]
+
+n_to_b = n_to_b %>% 
+  pivot_longer(Brooklyn:`Staten Island`, names_to = "borough", values_to = "neighborhood") %>%
+  na.omit()
+
+final = final %>% janitor::clean_names()
+
+extract_nbh = function(x){
+  # split the string by "-"
+  splited = unlist(strsplit(x, "-"))
+  if (length(splited) > 1){
+    # get the last string because it contains the actual address
+    last = tail(splited, n=1)
+    if (last == " Murray Hill"){
+      return(substr(splited[1], 1, 8))
+    }
+    # obmit the space at the begining
+    return(substr(last, 2, nchar(last)))
+  } else{
+    return(splited)
+  }
+}
+
+final = final %>%
+  mutate(neighborhood = unlist(map(neighborhood_u_h_f, extract_nbh)))
+
+final = left_join(final, n_to_b, by="neighborhood")
+
+```
+
+Try to fix some mismatch of spelling
+
+```{r}
+final[which(final$neighborhood == "Southeast Queens"),]$borough = "Queens"
+final[which(final$neighborhood == "Southwest Queens"),]$borough = "Queens"
+final[which(final$neighborhood == "West Queens"),]$borough = "Queens"
+final[which(final$neighborhood == "Rockaway"),]$borough = "Queens"
+final[which(final$neighborhood == "Upper Westside"),]$borough = "Manhattan"
+final[which(final$neighborhood == "Upper Eastside"),]$borough = "Manhattan"
+final[which(final$neighborhood == "Lower Eastside"),]$borough = "Manhattan"
+final[which(final$neighborhood == "Lower Manhattan"),]$borough = "Manhattan"
+final[which(final$neighborhood == "Bronx Park"),]$borough = "Bronx"
+final[which(final$neighborhood == "Tremont"),]$borough = "Bronx"
+final[which(final$neighborhood == "Northeast Bronx"),]$borough = "Bronx"
+final[is.na(final$borough),]
+```
+
+```{r}
+final = na.omit(final)
+
+final = final %>%
+  mutate(total_number_of_concurrent_hiv_aids_diagnoses = as.numeric(total_number_of_concurrent_hiv_aids_diagnoses),
+         total_number_of_aids_diagnoses = as.numeric(total_number_of_aids_diagnoses),
+         total_number_of_hiv_diagnoses = as.numeric(total_number_of_hiv_diagnoses),
+         aids_diagnoses_per_100_000_population = as.numeric(aids_diagnoses_per_100_000_population),
+         hiv_diagnoses_per_100_000_population = as.numeric(hiv_diagnoses_per_100_000_population)) %>%
+  mutate(total_number_of_concurrent_hiv_aids_diagnoses = replace_na(total_number_of_concurrent_hiv_aids_diagnoses, 0),
+         total_number_of_aids_diagnoses = replace_na(total_number_of_aids_diagnoses, 0),
+         total_number_of_hiv_diagnoses = replace_na(total_number_of_hiv_diagnoses, 0),
+         aids_diagnoses_per_100_000_population = replace_na(aids_diagnoses_per_100_000_population,0),
+         hiv_diagnoses_per_100_000_population = replace_na(hiv_diagnoses_per_100_000_population,0),
+         proportion_of_concurrent_hiv_aids_diagnoses_among_all_hiv_diagnoses = as.numeric(proportion_of_concurrent_hiv_aids_diagnoses_among_all_hiv_diagnoses)) %>%
+mutate(total_number_of_aids_diagnoses   = as.numeric(total_number_of_aids_diagnoses  )) %>%
+mutate(aids_diagnoses_per_100_000_population  = as.numeric(aids_diagnoses_per_100_000_population))
+  
+skimr::skim(final)
+```
+
+
+<<<<<<< HEAD
+
+=======
+
+```{r}
+
+library(ggplot2)
+final %>%
+  group_by(borough) %>%
+  summarise(number_of_testing_location = n(),
+            aids_per_100000 = sum(aids_diagnoses_per_100_000_population)/(number_of_testing_location),
+            hiv_per_100000 = sum(hiv_diagnoses_per_100_000_population)/(number_of_testing_location)) %>%
+  pivot_longer(aids_per_100000:hiv_per_100000,
+               names_to = "type",
+               names_pattern = "(aids|hiv)",
+               values_to = "diagnoses_per_100000") %>%
+  ggplot(aes(x = number_of_testing_location, y = diagnoses_per_100000, color = borough )) + 
+  geom_point() + facet_grid(. ~ type) + labs(title = "Number of testing location vs number of diagnoses per 100,000 people by borough") + xlab("Number of testing location") + ylab("Number of diagnosed patient per 100,000 people")
+  
+```
+
+Clearly from the both plots, there is not a very significant linear relationship. However, since we only have five datapoints, it is very hard to conclude if there is really a significant linear relationship between number of testing location and number of diagnoses in each borough. However, one interesting finding is that while other boroughs all have slightly higher HIV diagnoses rate, Manhattan has a significantly higer rate of HIV dianoses rate than aids, which should be investigated further.
+>>>>>>> b88e530fc32e8f723175aa5c16086d759147745b
+
+
+
+```{r}
+final_location = final_location %>% 
+  janitor::clean_names() %>% 
+  mutate_if(is.character, str_to_lower)%>% 
+  select(agency_id, site_name, zip_code, borough, zip_code, low_cost, free) %>% 
+  group_by(borough)
+
+final_location = na.omit(final_location) 
+
+final_location %>% 
+  summarise(zip_code) 
+
+final_location %>% 
+  mutate_if(is.character, str_to_lower)%>% 
+  count(borough) 
+```
+
+# counting number of free and lowcost centers
+
+```{r}
+final_location %>% 
+  group_by(borough) %>%
+  count(low_cost)
+
+final_location %>% 
+  group_by(borough) %>%
+  count(free)
+```
+
+
+```{r}
+# to count number of distinct values under each variable
+# apply(final, 2, function(x) length(unique(x)))
+
+# final %>% summarise(n = count(neighborhood))
+```
+
+# open final dataset and add
+
+
+```{r}
+final %>% 
+  group_by(borough, sex, year) %>% 
+  summarise(
+    total_hiv_diagnosis = sum(total_number_of_hiv_diagnoses, na.rm = TRUE),
+    total_number_of_concurrent_hiv_aids_diagnoses = sum(total_number_of_concurrent_hiv_aids_diagnoses, na.rm = TRUE)
+  ) %>% 
+  ggplot(aes(x = borough, y = total_hiv_diagnosis)) +
+  geom_col() +
+  facet_grid(~year)
+```
+
+# ggplot for free insurance
+
+
+```{r}
+final_location %>%
+  janitor::clean_names() %>% 
+  select(agency_id, site_name, zip_code, borough, zip_code, low_cost, free) %>% 
+  mutate_if(is.character, str_to_lower)%>% 
+  mutate_if(is.logical, str_to_lower)%>% 
+  group_by(borough) %>%
+  count(free) %>% 
+  ggplot(aes(x = free, y = n)) +
+  geom_col() +
+  facet_grid(~borough)
+```
+
+# ggplot for low cost 
+
+
+```{r}
+final_location %>%
+  janitor::clean_names() %>% 
+  select(agency_id, site_name, zip_code, borough, zip_code, low_cost, free) %>% 
+  mutate_if(is.character, str_to_lower)%>% 
+  mutate_if(is.logical, str_to_lower)%>% 
+  group_by(borough) %>%
+  count(low_cost) %>% 
+  ggplot(aes(x = low_cost, y = n)) +
+  geom_col() +
+  facet_grid(~borough)
+```
+  
+
+# creating 2 data sets with grouped by borough and combing data sets
+
+```{r, warning=TRUE}
+borough_final = final %>% 
+  select(- neighborhood_u_h_f, -neighborhood) %>% 
+  mutate_if(is.character, str_to_lower) %>% 
+  group_by(borough, year, sex, race_ethnicity) %>% 
+  summarise(
+    total_hiv_diagnosis = sum(total_number_of_hiv_diagnoses, na.rm = TRUE),
+    total_number_of_concurrent_hiv_aids_diagnoses = sum(total_number_of_concurrent_hiv_aids_diagnoses, na.rm = TRUE),
+    total_number_of_aids_diagnosis = sum(total_number_of_aids_diagnoses, na.rm = TRUE),
+    hiv_diagnoses_per_100_000_population = mean(hiv_diagnoses_per_100_000_population, na.rm = TRUE),
+    proportion_of_concurrent_hiv_aids_diagnoses_among_all_hiv_diagnoses = mean(proportion_of_concurrent_hiv_aids_diagnoses_among_all_hiv_diagnoses, na.rm = TRUE),
+    aids_diagnoses_per_100_000_population = mean(aids_diagnoses_per_100_000_population, na.rm = TRUE)
+  ) 
+```
+
+
+
+# time treands of hiv diagnosis rates for each borough
+  
+```{r}
+ borough_final %>% 
+  ggplot(aes(x = year, y = total_number_of_aids_diagnosis)) + 
+  geom_col(aes(fill = borough), position = "dodge") +
+  theme(legend.position = "bottom")
+  
+  borough_final %>% 
+  ggplot(aes(x = year, y = total_hiv_diagnosis)) + 
+  geom_col(aes(fill = borough), position = "dodge") +
+  theme(legend.position = "bottom")
+  
+  borough_final %>% 
+  ggplot(aes(x = year, y = total_number_of_concurrent_hiv_aids_diagnoses)) + 
+  geom_col(aes(fill = borough), position = "dodge") +
+  theme(legend.position = "bottom")
+  
+  borough_final %>% 
+  ggplot(aes(x = year, y = proportion_of_concurrent_hiv_aids_diagnoses_among_all_hiv_diagnoses)) + 
+  geom_col(aes(fill = borough), position = "dodge") +
+  theme(legend.position = "bottom")
+  
+   borough_final %>% 
+  ggplot(aes(x = year, y = hiv_diagnoses_per_100_000_population)) + 
+  geom_col(aes(fill = borough), position = "dodge") +
+  theme(legend.position = "bottom")
+   
+   borough_final %>% 
+  ggplot(aes(x = year, y = aids_diagnoses_per_100_000_population)) + 
+  geom_col(aes(fill = borough), position = "dodge") +
+  theme(legend.position = "bottom")
+
+```
+ 
+
+# 
+trial_1 = final_location[-which(final_location$borough == "new york"),]
+
+trial = trial_1 %>% 
+  ungroup() %>% 
+  group_by(borough) %>% 
+  mutate(low_cost = as.integer(low_cost),
+         free = as.integer(free),
+         count_of_sites = 1) %>% 
+  summarise(
+    total_low_cost = sum(low_cost),
+    total_free = sum(free),
+    proportion_low_cost = total_low_cost/sum(count_of_sites),
+     proportion_free = total_free/sum(count_of_sites),
+  )
+
+zip_code = trial_1 %>% 
+  ungroup() %>% 
+  group_by(zip_code, borough) %>% 
+  mutate(low_cost = as.integer(low_cost),
+         free = as.integer(free),
+         count_of_sites = 1) %>% 
+  summarise(
+    total_low_cost = sum(low_cost),
+    total_free = sum(free),
+    proportion_low_cost = total_low_cost/sum(count_of_sites),
+     proportion_free = total_free/sum(count_of_sites),
+  )
+
+borough_combined = merge(x = borough_final, y = trial, by = "borough", all = TRUE) %>% 
+  na.omit()
+  
+borough_combined %>%
+  janitor::clean_names() %>% 
+  select(agency_id, site_name, zip_code, borough, zip_code, low_cost, free) %>% 
+  mutate_if(is.character, str_to_lower)%>% 
+  mutate_if(is.logical, str_to_lower)%>% 
+  group_by(borough) %>%
+  count(low_cost) %>% 
+  ggplot(aes(x = low_cost, y = n)) +
+  geom_col() +
+  facet_grid(~borough)
+
+str(borough_final)
+
+```
+
+
