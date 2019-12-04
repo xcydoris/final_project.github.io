@@ -1,8 +1,2 @@
-
-
-library(shiny)
-
 library(rsconnect)
-
-library(rsconnect)
-rsconnect::deployApp('./shiny')
+rsconnect::deployApp('./shiny.rmd')

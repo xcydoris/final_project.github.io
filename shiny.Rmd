@@ -19,20 +19,15 @@ library(rsconnect)
 library(shiny)
 ```
 
-```{r}
+```{r include=FALSE}
 # Directories
 final = read_csv("./data/HIV_AIDS_Diagnoses_by_Neighborhood__Sex__and_Race_Ethnicity.csv")
 
 final_location = read_csv("./data/HIV_Testing_Locations.csv")
 ```
 
-### data set cleaning
 
-import Manhattan neighborhood to borough data find on the [website](https://www.baruch.cuny.edu/nycdata/population-geography/neighborhoods.htm)
-
-Add the borough info to `final` dataset
-
-```{r}
+```{r include=FALSE}
 ## dropping last column because it is empty
 n_to_b = read_csv("./data/Manhattan_Neighborhood_to_Borough.csv")[,-6]
 
@@ -65,9 +60,8 @@ final = left_join(final, n_to_b, by="neighborhood")
 
 ```
 
-Try to fix some mismatch of spelling
 
-```{r}
+```{r include=FALSE}
 final[which(final$neighborhood == "Southeast Queens"),]$borough = "Queens"
 final[which(final$neighborhood == "Southwest Queens"),]$borough = "Queens"
 final[which(final$neighborhood == "West Queens"),]$borough = "Queens"
@@ -82,7 +76,7 @@ final[which(final$neighborhood == "Northeast Bronx"),]$borough = "Bronx"
 final[is.na(final$borough),]
 ```
 
-```{r}
+```{r include=FALSE}
 final = na.omit(final)
 
 final = final %>%
@@ -104,13 +98,11 @@ skimr::skim(final)
 ```
 
 
-# creating 2 data sets with grouped by borough and combing data sets
-
-```{r, warning=TRUE}
+```{r, warning=TRUE, include=FALSE}
 borough_final = final %>% 
   select(- neighborhood_u_h_f, -neighborhood) %>% 
   mutate_if(is.character, str_to_lower) %>% 
-  group_by(borough, year, sex, race_ethnicity) %>% 
+  group_by(borough) %>% 
   summarise(
     total_hiv_diagnosis = sum(total_number_of_hiv_diagnoses, na.rm = TRUE),
     total_number_of_concurrent_hiv_aids_diagnoses = sum(total_number_of_concurrent_hiv_aids_diagnoses, na.rm = TRUE),
@@ -126,17 +118,11 @@ Column {.sidebar}
 
 ```{r}
 
-boros = borough_final %>% distinct(borough) %>% pull() 
+boros = borough_final %>% distinct() %>% pull() 
+# selectInput widget
+selectInput("borough_choice", label = h3("Select borough"),
+            choices = boros, selected = "Manhattan")
 
-selectInput("borough_choice", label = h3("Select boro"),
-            choices = boros, 
-            selected = "Manhattan")
-
-year = borough_final %>% distinct(year) %>% pull()
-
-selectInput("year_choice", label = h3("Choose year"),
-    choices = year, 
-    selected = "2010")
 
 ```
 
@@ -146,13 +132,10 @@ Column {data-width=650}
 ### Chart A
 
 ```{r}
-
 renderPlotly({ 
   borough_final %>%
-    ungroup() %>% 
-    group_by(borough) %>%
-    ggplot(aes(x = year, y = total_number_of_aids_diagnosis)) + 
-  geom_col(aes(fill = borough), position = "dodge") +
+  ggplot(aes(x = year, y = total_number_of_aids_diagnosis)) + 
+  geom_col(aes(fill = year), position = "dodge") +
   theme(legend.position = "bottom")
 })
 
