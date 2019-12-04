@@ -136,9 +136,6 @@ final_location = final_location %>%
 final_location = na.omit(final_location) 
 
 final_location %>% 
-  summarise(zip_code) 
-
-final_location %>% 
   mutate_if(is.character, str_to_lower)%>% 
   count(borough) 
 ```

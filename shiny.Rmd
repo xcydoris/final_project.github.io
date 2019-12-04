@@ -102,7 +102,7 @@ skimr::skim(final)
 borough_final = final %>% 
   select(- neighborhood_u_h_f, -neighborhood) %>% 
   mutate_if(is.character, str_to_lower) %>% 
-  group_by(borough) %>% 
+  group_by(borough, year, sex, race_ethnicity) %>% 
   summarise(
     total_hiv_diagnosis = sum(total_number_of_hiv_diagnoses, na.rm = TRUE),
     total_number_of_concurrent_hiv_aids_diagnoses = sum(total_number_of_concurrent_hiv_aids_diagnoses, na.rm = TRUE),
@@ -118,24 +118,31 @@ Column {.sidebar}
 
 ```{r}
 
-boros = borough_final %>% distinct() %>% pull() 
+boros = borough_final %>% pull(borough) %>% unique() 
 # selectInput widget
 selectInput("borough_choice", label = h3("Select borough"),
-            choices = boros, selected = "Manhattan")
+            choices = boros, selected = "manhattan")
 
+choice = borough_final %>%  pull()
+
+selectInput()
 
 ```
 
-Column {data-width=650}
+Column {data-width=350}
 -----------------------------------------------------------------------
 
 ### Chart A
 
 ```{r}
+
 renderPlotly({ 
   borough_final %>%
+  ungroup() %>% 
+  filter(borough == input$borough_choice) %>% 
+  group_by(year) %>% 
   ggplot(aes(x = year, y = total_number_of_aids_diagnosis)) + 
-  geom_col(aes(fill = year), position = "dodge") +
+  geom_col(aes(fill = sex), position = "dodge") +
   theme(legend.position = "bottom")
 })
 
@@ -144,17 +151,30 @@ renderPlotly({
 Column {data-width=350}
 -----------------------------------------------------------------------
 
-### Chart B
+### Trend of AIDS diagnosis over the years through years 2010 to 2013
 
 ```{r}
 
-
+renderPlotly({ 
+  borough_final %>%
+  ggplot(aes(x = year, y = total_hiv_diagnosis)) + 
+  geom_col(aes(fill = borough), position = "dodge") +
+  theme(legend.position = "bottom")
+})
 
 ```
 
 ### Chart C
 
 ```{r}
+
+renderPlotly({ 
+  borough_final %>%
+  ggplot(aes(x = year, y = total_number_of_concurrent_hiv_aids_diagnoses)) + 
+  geom_col(aes(fill = borough), position = "dodge") +
+  theme(legend.position = "bottom")
+})
+
 
 ```
   
