@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggplot2)
 library(viridis)
+library(ggplot2)
 
 # Directories
 final = read_csv("./data/HIV_AIDS_Diagnoses_by_Neighborhood__Sex__and_Race_Ethnicity.csv")
@@ -106,7 +107,6 @@ skimr::skim(final)
 
 ```{r}
 
-library(ggplot2)
 final %>%
   group_by(borough) %>%
   summarise(number_of_testing_location = n(),
@@ -227,8 +227,6 @@ borough_final = final %>%
     aids_diagnoses_per_100_000_population = mean(aids_diagnoses_per_100_000_population, na.rm = TRUE)
   ) 
 ```
-
-
 
 # time treands of hiv diagnosis rates for each borough
   

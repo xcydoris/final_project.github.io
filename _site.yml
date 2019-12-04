@@ -6,6 +6,6 @@ navbar:
     - text: "Analysis"
       href: index.html
     - text: "Interactive Graphics"
-      href: shiny.html
+      href: https://svs2130.shinyapps.io/shiny/
     - text: "Screencast"  
       href: 

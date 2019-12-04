@@ -15,10 +15,110 @@ library(tidyverse)
 library(viridis)
 library(p8105.datasets)
 library(plotly)
+library(rsconnect)
+library(shiny)
 ```
 
 ```{r}
-borough = borough_final %>% distinct(borough) %>% pull()
+# Directories
+final = read_csv("./data/HIV_AIDS_Diagnoses_by_Neighborhood__Sex__and_Race_Ethnicity.csv")
+
+final_location = read_csv("./data/HIV_Testing_Locations.csv")
+```
+
+### data set cleaning
+
+import Manhattan neighborhood to borough data find on the [website](https://www.baruch.cuny.edu/nycdata/population-geography/neighborhoods.htm)
+
+Add the borough info to `final` dataset
+
+```{r}
+## dropping last column because it is empty
+n_to_b = read_csv("./data/Manhattan_Neighborhood_to_Borough.csv")[,-6]
+
+n_to_b = n_to_b %>% 
+  pivot_longer(Brooklyn:`Staten Island`, names_to = "borough", values_to = "neighborhood") %>%
+  na.omit()
+
+final = final %>% janitor::clean_names()
+
+extract_nbh = function(x){
+  # split the string by "-"
+  splited = unlist(strsplit(x, "-"))
+  if (length(splited) > 1){
+    # get the last string because it contains the actual address
+    last = tail(splited, n=1)
+    if (last == " Murray Hill"){
+      return(substr(splited[1], 1, 8))
+    }
+    # obmit the space at the begining
+    return(substr(last, 2, nchar(last)))
+  } else{
+    return(splited)
+  }
+}
+
+final = final %>%
+  mutate(neighborhood = unlist(map(neighborhood_u_h_f, extract_nbh)))
+
+final = left_join(final, n_to_b, by="neighborhood")
+
+```
+
+Try to fix some mismatch of spelling
+
+```{r}
+final[which(final$neighborhood == "Southeast Queens"),]$borough = "Queens"
+final[which(final$neighborhood == "Southwest Queens"),]$borough = "Queens"
+final[which(final$neighborhood == "West Queens"),]$borough = "Queens"
+final[which(final$neighborhood == "Rockaway"),]$borough = "Queens"
+final[which(final$neighborhood == "Upper Westside"),]$borough = "Manhattan"
+final[which(final$neighborhood == "Upper Eastside"),]$borough = "Manhattan"
+final[which(final$neighborhood == "Lower Eastside"),]$borough = "Manhattan"
+final[which(final$neighborhood == "Lower Manhattan"),]$borough = "Manhattan"
+final[which(final$neighborhood == "Bronx Park"),]$borough = "Bronx"
+final[which(final$neighborhood == "Tremont"),]$borough = "Bronx"
+final[which(final$neighborhood == "Northeast Bronx"),]$borough = "Bronx"
+final[is.na(final$borough),]
+```
+
+```{r}
+final = na.omit(final)
+
+final = final %>%
+  mutate(total_number_of_concurrent_hiv_aids_diagnoses = as.numeric(total_number_of_concurrent_hiv_aids_diagnoses),
+         total_number_of_aids_diagnoses = as.numeric(total_number_of_aids_diagnoses),
+         total_number_of_hiv_diagnoses = as.numeric(total_number_of_hiv_diagnoses),
+         aids_diagnoses_per_100_000_population = as.numeric(aids_diagnoses_per_100_000_population),
+         hiv_diagnoses_per_100_000_population = as.numeric(hiv_diagnoses_per_100_000_population)) %>%
+  mutate(total_number_of_concurrent_hiv_aids_diagnoses = replace_na(total_number_of_concurrent_hiv_aids_diagnoses, 0),
+         total_number_of_aids_diagnoses = replace_na(total_number_of_aids_diagnoses, 0),
+         total_number_of_hiv_diagnoses = replace_na(total_number_of_hiv_diagnoses, 0),
+         aids_diagnoses_per_100_000_population = replace_na(aids_diagnoses_per_100_000_population,0),
+         hiv_diagnoses_per_100_000_population = replace_na(hiv_diagnoses_per_100_000_population,0),
+         proportion_of_concurrent_hiv_aids_diagnoses_among_all_hiv_diagnoses = as.numeric(proportion_of_concurrent_hiv_aids_diagnoses_among_all_hiv_diagnoses)) %>%
+mutate(total_number_of_aids_diagnoses   = as.numeric(total_number_of_aids_diagnoses  )) %>%
+mutate(aids_diagnoses_per_100_000_population  = as.numeric(aids_diagnoses_per_100_000_population))
+  
+skimr::skim(final)
+```
+
+
+# creating 2 data sets with grouped by borough and combing data sets
+
+```{r, warning=TRUE}
+borough_final = final %>% 
+  select(- neighborhood_u_h_f, -neighborhood) %>% 
+  mutate_if(is.character, str_to_lower) %>% 
+  group_by(borough, year, sex, race_ethnicity) %>% 
+  summarise(
+    total_hiv_diagnosis = sum(total_number_of_hiv_diagnoses, na.rm = TRUE),
+    total_number_of_concurrent_hiv_aids_diagnoses = sum(total_number_of_concurrent_hiv_aids_diagnoses, na.rm = TRUE),
+    total_number_of_aids_diagnosis = sum(total_number_of_aids_diagnoses, na.rm = TRUE),
+    hiv_diagnoses_per_100_000_population = mean(hiv_diagnoses_per_100_000_population, na.rm = TRUE),
+    proportion_of_concurrent_hiv_aids_diagnoses_among_all_hiv_diagnoses = mean(proportion_of_concurrent_hiv_aids_diagnoses_among_all_hiv_diagnoses, na.rm = TRUE),
+    aids_diagnoses_per_100_000_population = mean(aids_diagnoses_per_100_000_population, na.rm = TRUE)
+  ) 
 ```
 
 Column {.sidebar}
@@ -26,12 +126,18 @@ Column {.sidebar}
 
 ```{r}
 
+boros = borough_final %>% distinct(borough) %>% pull() 
 
-# selectInput widget
-selectInput(
-  "borough_choice", 
-  label = h3("Select borough"),
-  choices = boros, selected = "Manhattan")
+selectInput("borough_choice", label = h3("Select boro"),
+            choices = boros, 
+            selected = "Manhattan")
+
+year = borough_final %>% distinct(year) %>% pull()
+
+selectInput("year_choice", label = h3("Choose year"),
+    choices = year, 
+    selected = "2010")
+
 ```
 
 Column {data-width=650}
@@ -41,6 +147,15 @@ Column {data-width=650}
 
 ```{r}
 
+renderPlotly({ 
+  borough_final %>%
+    ungroup() %>% 
+    group_by(borough) %>%
+    ggplot(aes(x = year, y = total_number_of_aids_diagnosis)) + 
+  geom_col(aes(fill = borough), position = "dodge") +
+  theme(legend.position = "bottom")
+})
+
 ```
 
 Column {data-width=350}
@@ -49,6 +164,8 @@ Column {data-width=350}
 ### Chart B
 
 ```{r}
+
+
 
 ```
 
