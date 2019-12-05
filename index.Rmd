@@ -40,11 +40,15 @@ In order to better understand the trend of HIV/AIDS diagnoses, we thought it wou
 
 Clearly from both of the plots, there is no significant linear relationship. However, since we only have five data points, it is very hard to conclude if there is really a significant linear relationship between number of testing location and number of HIV/AIDS diagnoses in each borough. However, one interesting finding is that while other boroughs all have slightly higher HIV diagnoses rates, Manhattan has a significantly higher rate of HIV diagnoses rate than aids, which may need more study.
 
+<<<<<<< HEAD
+From visualizing using the graphs in flex dashboard we can see there is a decrease in the number of HIV and AIDS through the years. We can clearly compare the discrepencies between different genders, with male sex and unknown sex having the most number of cases irrespective of borough. 
+=======
 
 
 
  - Interactive map analysis about HIV/AIDS diagnosis rate by borough and race
  
 From visualizing using the graphs in flex dashboard we can see there is a decrease in the number of HIV and AIDS through the years. 
+>>>>>>> 0efed1b5b4ae43c2c8fa6de65777fa0da0543566
 
 
