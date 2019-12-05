@@ -9,4 +9,6 @@ navbar:
       href: https://svs2130.shinyapps.io/shiny/
     - text: "Screencast"  
       href: https://www.youtube.com/watch?v=hIEG96h4_EY&feature=youtu.be
+    - icon: fa-github fa-lg
+      href: https://github.com/xcydoris/final_project.github.io
    
